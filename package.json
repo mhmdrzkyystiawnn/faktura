@@ -1,0 +1,15 @@
+{
+  "name": "faktura",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c green,cyan \"pnpm --filter @faktura/api dev\" \"pnpm --filter @faktura/web dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "prisma": "8.0.0-rc.14"
+  }
+}
