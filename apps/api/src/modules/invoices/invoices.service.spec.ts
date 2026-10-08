@@ -7,6 +7,7 @@ describe('InvoicesService', () => {
   const prisma = {
     invoice: {
       findFirst: jest.fn(),
+      findUnique: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
       count: jest.fn(),
@@ -225,6 +226,92 @@ describe('InvoicesService', () => {
       expect(cutoff.getUTCHours()).toBe(0);
       expect(cutoff.getUTCMinutes()).toBe(0);
       expect(cutoff.getUTCSeconds()).toBe(0);
+    });
+  });
+
+  describe('findByPublicToken', () => {
+    function publicInvoice(overrides: Record<string, unknown> = {}) {
+      return {
+        id: 'inv-1',
+        userId: 'user-a',
+        clientId: 'client-a',
+        status: 'sent',
+        invoiceNumber: 'INV-2026-001',
+        publicToken: 'token-abc',
+        issueDate: new Date('2026-09-19T00:00:00.000Z'),
+        dueDate: new Date('2026-09-20T00:00:00.000Z'),
+        subtotal: { toNumber: () => 100000 },
+        taxPercent: { toNumber: () => 0 },
+        discountAmount: { toNumber: () => 0 },
+        total: { toNumber: () => 100000 },
+        currency: 'IDR',
+        client: { name: 'Klien A', email: 'klien@example.com' },
+        items: [
+          {
+            id: 'item-1',
+            description: 'Jasa',
+            quantity: { toNumber: () => 1 },
+            unitPrice: { toNumber: () => 100000 },
+            subtotal: { toNumber: () => 100000 },
+          },
+        ],
+        ...overrides,
+      };
+    }
+
+    it('returns a sanitized invoice without internal fields', async () => {
+      prisma.invoice.findUnique.mockResolvedValue(publicInvoice());
+
+      const result = await service.findByPublicToken('token-abc');
+
+      expect(result.data).not.toHaveProperty('userId');
+      expect(result.data).not.toHaveProperty('publicToken');
+      expect(result.data).not.toHaveProperty('clientId');
+      expect(result.data.client).toEqual({ name: 'Klien A' });
+      expect(result.data.invoiceNumber).toBe('INV-2026-001');
+      expect(result.data.total).toBe(100000);
+    });
+
+    it('flips status from sent to viewed when opened', async () => {
+      prisma.invoice.findUnique.mockResolvedValue(publicInvoice());
+      prisma.invoice.update.mockResolvedValue({});
+
+      const result = await service.findByPublicToken('token-abc');
+
+      expect(prisma.invoice.update).toHaveBeenCalledWith({
+        where: { id: 'inv-1' },
+        data: { status: 'viewed' },
+      });
+      expect(result.data.status).toBe('viewed');
+    });
+
+    it('does not change status for an already-viewed invoice', async () => {
+      prisma.invoice.findUnique.mockResolvedValue(
+        publicInvoice({ status: 'viewed' }),
+      );
+
+      await service.findByPublicToken('token-abc');
+
+      expect(prisma.invoice.update).not.toHaveBeenCalled();
+    });
+
+    it('does not change status for a paid invoice', async () => {
+      prisma.invoice.findUnique.mockResolvedValue(
+        publicInvoice({ status: 'paid' }),
+      );
+
+      const result = await service.findByPublicToken('token-abc');
+
+      expect(prisma.invoice.update).not.toHaveBeenCalled();
+      expect(result.data.status).toBe('paid');
+    });
+
+    it('throws NotFound for an unknown token', async () => {
+      prisma.invoice.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.findByPublicToken('missing'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

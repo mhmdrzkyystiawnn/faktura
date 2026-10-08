@@ -326,6 +326,45 @@ export class InvoicesService {
     return { marked: result.count };
   }
 
+  // --- Public (client-facing, tanpa login) ---
+
+  async findByPublicToken(token: string) {
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { publicToken: token },
+      include: { client: true, items: true },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException('Invoice tidak ditemukan');
+    }
+
+    if (invoice.status === 'sent') {
+      await this.prisma.invoice.update({
+        where: { id: invoice.id },
+        data: { status: 'viewed' },
+      });
+      invoice.status = 'viewed';
+    }
+
+    return { data: this.serializePublicInvoice(invoice) };
+  }
+
+  private serializePublicInvoice(invoice: any) {
+    const serialized = this.serializeInvoice(invoice);
+    const {
+      userId: _userId,
+      publicToken: _publicToken,
+      clientId: _clientId,
+      client,
+      ...rest
+    } = serialized;
+
+    return {
+      ...rest,
+      client: { name: client.name },
+    };
+  }
+
   private async getOwnedInvoice(userId: string, id: string) {
     const invoice = await this.prisma.invoice.findFirst({
       where: { id, userId },
@@ -443,6 +482,14 @@ export class InvoicesService {
     return randomBytes(32).toString('hex');
   }
 
+  private buildInvoiceUrl(publicToken: string): string {
+    const base =
+      process.env.FRONTEND_URL ??
+      process.env.CORS_ORIGIN?.split(',')[0] ??
+      'http://localhost:3000';
+    return `${base.replace(/\/$/, '')}/public/invoice/${publicToken}`;
+  }
+
   private async sendInvoiceEmail(invoice: any, senderName: string) {
     const clientEmail = invoice.client.email;
     if (!clientEmail) return;
@@ -474,6 +521,7 @@ export class InvoicesService {
       dueDate: invoice.dueDate.toISOString().slice(0, 10),
       currency,
       clientName: invoice.client.name as string,
+      invoiceUrl: this.buildInvoiceUrl(invoice.publicToken),
       subtotal: fmt(invoice.subtotal),
       taxPercent: invoice.taxPercent.toNumber(),
       taxAmount: fmt(
@@ -568,6 +616,13 @@ export class InvoicesService {
                 <tr>
                   <td style="padding:12px 0 0;border-top:2px solid #1a365d;color:#1a365d;font-size:15px;font-weight:600;">Total</td>
                   <td style="padding:12px 0 0;border-top:2px solid #1a365d;color:#1a365d;font-size:16px;font-weight:700;text-align:right;">${data.total}</td>
+                </tr>
+              </table>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
+                <tr>
+                  <td style="background-color:#a47c48;border-radius:6px;">
+                    <a href="${data.invoiceUrl}" style="display:inline-block;padding:12px 24px;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;">Lihat invoice online</a>
+                  </td>
                 </tr>
               </table>
               <p style="margin:24px 0 0;color:#4a5568;font-size:14px;line-height:1.6;">
