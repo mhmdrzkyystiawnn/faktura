@@ -9,7 +9,15 @@ jobs:
   process-reminders:
     runs-on: ubuntu-latest
     steps:
-      - name: Call process-reminders endpoint
+      - name: Mark overdue invoices
+        run: |
+          curl -s -X POST \
+            "${{ secrets.API_BASE_URL }}/api/v1/internal/mark-overdue-invoices" \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Cron-Secret: ${{ secrets.INTERNAL_CRON_SECRET }}" \
+            -w "\nHTTP_STATUS: %{http_code}\n"
+
+      - name: Process due reminders
         run: |
           curl -s -X POST \
             "${{ secrets.API_BASE_URL }}/api/v1/internal/process-reminders" \

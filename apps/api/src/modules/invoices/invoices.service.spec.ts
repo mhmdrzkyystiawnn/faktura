@@ -8,6 +8,7 @@ describe('InvoicesService', () => {
     invoice: {
       findFirst: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     user: {
       findUnique: jest.fn(),
@@ -150,6 +151,33 @@ describe('InvoicesService', () => {
       );
       expect(prisma.invoice.update).not.toHaveBeenCalled();
       expect(reminders.generateReminders).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('markOverdueInvoices', () => {
+    it('marks sent and viewed invoices past due date as overdue', async () => {
+      prisma.invoice.updateMany.mockResolvedValue({ count: 2 });
+
+      const result = await service.markOverdueInvoices();
+
+      expect(result.marked).toBe(2);
+
+      const call = prisma.invoice.updateMany.mock.calls[0][0];
+      expect(call.data).toEqual({ status: 'overdue' });
+      expect(call.where.status).toEqual({ in: ['sent', 'viewed'] });
+      expect(call.where.dueDate.lt).toBeInstanceOf(Date);
+    });
+
+    it('uses start of today (UTC) as the cutoff, so today is not overdue', async () => {
+      prisma.invoice.updateMany.mockResolvedValue({ count: 0 });
+
+      await service.markOverdueInvoices();
+
+      const cutoff: Date = prisma.invoice.updateMany.mock.calls[0][0].where
+        .dueDate.lt;
+      expect(cutoff.getUTCHours()).toBe(0);
+      expect(cutoff.getUTCMinutes()).toBe(0);
+      expect(cutoff.getUTCSeconds()).toBe(0);
     });
   });
 });

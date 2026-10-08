@@ -306,6 +306,23 @@ export class InvoicesService {
     return { data: this.serializeInvoice(updated) };
   }
 
+  // --- Dipanggil endpoint internal (cron) ---
+
+  async markOverdueInvoices() {
+    const startOfTodayUtc = new Date();
+    startOfTodayUtc.setUTCHours(0, 0, 0, 0);
+
+    const result = await this.prisma.invoice.updateMany({
+      where: {
+        status: { in: ['sent', 'viewed'] },
+        dueDate: { lt: startOfTodayUtc },
+      },
+      data: { status: 'overdue' },
+    });
+
+    return { marked: result.count };
+  }
+
   private async getOwnedInvoice(userId: string, id: string) {
     const invoice = await this.prisma.invoice.findFirst({
       where: { id, userId },
