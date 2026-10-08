@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -17,6 +18,7 @@ import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { calculateInvoiceTotals } from './invoice-calculator';
 
 const MAX_NUMBER_RETRIES = 3;
+const FREE_PLAN_MONTHLY_LIMIT = 5;
 
 @Injectable()
 export class InvoicesService {
@@ -75,6 +77,7 @@ export class InvoicesService {
   async create(userId: string, dto: CreateInvoiceDto) {
     const dates = this.validateDates(dto.issueDate, dto.dueDate);
     await this.clients.findOne(userId, dto.clientId);
+    await this.assertWithinMonthlyLimit(userId);
     const totals = this.calculateTotals(
       dto.items,
       dto.taxPercent ?? 0,
@@ -241,7 +244,7 @@ export class InvoicesService {
         monthlyRevenue: (
           monthlyRevenueResult._sum.amount ?? new Prisma.Decimal(0)
         ).toNumber(),
-        usage: { used: monthlyInvoiceCount, limit: 5 },
+        usage: { used: monthlyInvoiceCount, limit: FREE_PLAN_MONTHLY_LIMIT },
         recentInvoices: recentInvoices.map((inv) => ({
           ...inv,
           total: inv.total.toNumber(),
@@ -371,6 +374,30 @@ export class InvoicesService {
     if (status !== 'draft') {
       throw new ConflictException(
         'Hanya invoice draft yang dapat diubah atau dihapus',
+      );
+    }
+  }
+
+  private async assertWithinMonthlyLimit(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
+    });
+
+    if (!user || user.plan !== 'free') {
+      return;
+    }
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1);
+
+    const used = await this.prisma.invoice.count({
+      where: { userId, createdAt: { gte: startOfMonth } },
+    });
+
+    if (used >= FREE_PLAN_MONTHLY_LIMIT) {
+      throw new ForbiddenException(
+        `Plan free hanya dapat membuat ${FREE_PLAN_MONTHLY_LIMIT} invoice per bulan. Upgrade ke Pro untuk invoice tanpa batas.`,
       );
     }
   }

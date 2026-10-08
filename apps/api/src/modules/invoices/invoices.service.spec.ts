@@ -9,6 +9,7 @@ describe('InvoicesService', () => {
       findFirst: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
+      count: jest.fn(),
     },
     user: {
       findUnique: jest.fn(),
@@ -28,7 +29,7 @@ describe('InvoicesService', () => {
   );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('rejects access to an invoice that is not owned by the current user', async () => {
@@ -59,6 +60,52 @@ describe('InvoicesService', () => {
 
     expect(clients.findOne).toHaveBeenCalledWith('user-a', 'client-a');
     expect(transaction).not.toHaveBeenCalled();
+  });
+
+  describe('create — free plan monthly limit', () => {
+    function baseDto() {
+      return {
+        clientId: 'client-a',
+        issueDate: '2026-09-19',
+        dueDate: '2026-09-20',
+        items: [{ description: 'Jasa', quantity: 1, unitPrice: 100000 }],
+      };
+    }
+
+    it('rejects creation when free plan already hit the monthly limit', async () => {
+      prisma.user.findUnique.mockResolvedValue({ plan: 'free' });
+      prisma.invoice.count.mockResolvedValue(5);
+
+      await expect(service.create('user-a', baseDto())).rejects.toThrow(
+        'Plan free hanya dapat membuat 5 invoice per bulan',
+      );
+    });
+
+    it('allows creation when free plan is under the limit', async () => {
+      prisma.user.findUnique.mockResolvedValue({ plan: 'free' });
+      prisma.invoice.count.mockResolvedValue(4);
+      clients.findOne.mockResolvedValue({ data: { id: 'client-a' } });
+      const transaction = jest.fn().mockRejectedValue(new Error('stop-here'));
+      Object.assign(prisma, { $transaction: transaction });
+
+      await expect(service.create('user-a', baseDto())).rejects.toThrow(
+        'stop-here',
+      );
+      expect(transaction).toHaveBeenCalled();
+    });
+
+    it('skips the limit check for pro plan users', async () => {
+      prisma.user.findUnique.mockResolvedValue({ plan: 'pro' });
+      prisma.invoice.count.mockClear();
+      clients.findOne.mockResolvedValue({ data: { id: 'client-a' } });
+      const transaction = jest.fn().mockRejectedValue(new Error('stop-here'));
+      Object.assign(prisma, { $transaction: transaction });
+
+      await expect(service.create('user-a', baseDto())).rejects.toThrow(
+        'stop-here',
+      );
+      expect(prisma.invoice.count).not.toHaveBeenCalled();
+    });
   });
 
   describe('send', () => {
