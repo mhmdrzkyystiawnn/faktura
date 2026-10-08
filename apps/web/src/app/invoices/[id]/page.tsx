@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { WorkspaceShell } from "@/components/workspace-shell";
+import { PrintButton } from "@/components/print-button";
 import { api } from "@/lib/api";
 import { logout } from "@/lib/auth";
 
@@ -175,6 +176,7 @@ export default function InvoiceDetailPage() {
                 </div>
                 {invoice.status === "draft" ? (
                   <div className="flex flex-wrap gap-2">
+                    <PrintButton />
                     <Button variant="outline" asChild>
                       <Link href={`/invoices/${invoice.id}/edit`}><Pencil className="h-4 w-4" />Edit</Link>
                     </Button>
@@ -185,10 +187,15 @@ export default function InvoiceDetailPage() {
                       <Send className="h-4 w-4" />{sending ? "Memproses..." : "Tandai Terkirim"}
                     </Button>
                   </div>
-                ) : invoice.status === "cancelled" || invoice.status === "paid" ? null : (
-                  <Button variant="ghost" className="text-danger hover:bg-danger/10" onClick={() => setCancelOpen(true)}>
-                    <XCircle className="h-4 w-4" />Batalkan invoice
-                  </Button>
+                ) : invoice.status === "cancelled" || invoice.status === "paid" ? (
+                  <PrintButton />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    <PrintButton />
+                    <Button variant="ghost" className="text-danger hover:bg-danger/10" onClick={() => setCancelOpen(true)}>
+                      <XCircle className="h-4 w-4" />Batalkan invoice
+                    </Button>
+                  </div>
                 )}
               </header>
 

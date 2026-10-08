@@ -61,13 +61,13 @@ export function WorkspaceShell({
         <button
           type="button"
           aria-label="Tutup navigasi"
-          className="fixed inset-0 z-30 bg-primary/30 lg:hidden"
+          className="fixed inset-0 z-30 bg-primary/30 print:hidden lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-primary-foreground/10 bg-primary text-primary-foreground transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-primary-foreground/10 bg-primary text-primary-foreground transition-transform print:hidden lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -141,7 +141,7 @@ export function WorkspaceShell({
       </aside>
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-8">
+        <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur print:hidden sm:px-8">
           <button
             type="button"
             aria-label="Buka navigasi"

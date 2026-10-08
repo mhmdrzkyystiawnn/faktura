@@ -168,3 +168,32 @@
     transition: background-color 9999s ease-in-out 0s;
   }
 }
+
+/* ── Print: invoice bersih tanpa chrome aplikasi ── */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  /* Batalkan offset sidebar dan latar dekoratif */
+  .lg\:pl-64 {
+    padding-left: 0 !important;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  /* Hindari baris tabel terpotong antar halaman */
+  tr,
+  td,
+  th {
+    break-inside: avoid;
+  }
+
+  /* Pastikan warna status & border tetap tercetak */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

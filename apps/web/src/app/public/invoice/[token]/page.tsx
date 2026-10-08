@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PrintButton } from "@/components/print-button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -72,7 +73,7 @@ export default async function PublicInvoicePage({
   };
 
   return (
-    <main className="min-h-screen bg-background px-4 py-10 text-foreground">
+    <main className="min-h-screen bg-background px-4 py-10 text-foreground print:bg-white print:py-0">
       <article className="mx-auto max-w-3xl">
         <header className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -86,13 +87,16 @@ export default async function PublicInvoicePage({
               Untuk {invoice.client.name}
             </p>
           </div>
-          <span
-            className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${
-              statusStyle[invoice.status] ?? statusStyle.draft
-            }`}
-          >
-            {statusLabel[invoice.status] ?? invoice.status}
-          </span>
+          <div className="flex items-center gap-3">
+            <span
+              className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${
+                statusStyle[invoice.status] ?? statusStyle.draft
+              }`}
+            >
+              {statusLabel[invoice.status] ?? invoice.status}
+            </span>
+            <PrintButton />
+          </div>
         </header>
 
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
