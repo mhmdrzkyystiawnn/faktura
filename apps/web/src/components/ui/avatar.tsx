@@ -32,7 +32,7 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
             src={src}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-medium text-text-muted bg-accent/10">
+          <div className="flex h-full w-full items-center justify-center font-medium text-muted-foreground bg-accent/10">
             {alt?.[0]?.toUpperCase() || "?"}
           </div>
         )}

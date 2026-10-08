@@ -15,7 +15,7 @@ export default function HomePage() {
           <br />
           <span className="text-accent">cash flow terjaga.</span>
         </h1>
-        <p className="mt-6 text-text-muted text-lg max-w-xl">
+        <p className="mt-6 text-muted-foreground text-lg max-w-xl">
           Faktura bantu freelancer & UMKM buat invoice yang rapi, kirim
           otomatis, dan dapat reminder untuk klien yang telat bayar — tanpa
           kerja manual.
@@ -42,7 +42,7 @@ export default function HomePage() {
                   <h3 className="font-medium text-primary text-lg mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-text-muted">{feature.desc}</p>
+                  <p className="text-sm text-muted-foreground">{feature.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -56,7 +56,7 @@ export default function HomePage() {
             <CardTitle className="text-2xl">Siap mulai?</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-text-muted mb-6">
+            <p className="text-muted-foreground mb-6">
               Daftar gratis dan buat invoice pertama dalam beberapa menit.
             </p>
             <Button size="lg" asChild>
@@ -66,7 +66,7 @@ export default function HomePage() {
         </Card>
       </section>
 
-      <footer className="py-8 px-4 border-t border-border text-sm text-text-muted text-center">
+      <footer className="py-8 px-4 border-t border-border text-sm text-muted-foreground text-center">
         <p>
           &copy; {new Date().getFullYear()} Faktura. Dibuat untuk freelancer
           Indonesia.

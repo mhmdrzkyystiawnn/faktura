@@ -172,24 +172,24 @@ export default function ClientsPage() {
 
   return (
     <WorkspaceShell activePath="/clients">
-      <main className="mx-auto max-w-7xl px-4 py-8 text-text-primary sm:px-8 lg:py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 text-foreground sm:px-8 lg:py-10">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Link
               href="/dashboard"
-              className="mb-5 inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary"
+              className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
             >
               <ArrowLeft className="h-4 w-4" />
               Kembali ke dashboard
             </Link>
-            <p className="font-mono text-xs uppercase tracking-[0.14em] text-text-muted">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
               Workspace / Klien
             </p>
             <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-primary">
               Daftar klien
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-text-muted">
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Simpan informasi klien agar pembuatan invoice dan reminder lebih cepat.
             </p>
           </div>
@@ -206,12 +206,12 @@ export default function ClientsPage() {
                 <h2 id="client-list-heading" className="font-serif text-xl font-medium text-primary">
                   Semua klien
                 </h2>
-                <p className="mt-1 text-sm text-text-muted">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {clients.length} klien tersimpan
                 </p>
               </div>
               <div className="relative w-full sm:w-72">
-                <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-text-muted" />
+                <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   aria-label="Cari klien"
                   placeholder="Cari nama, email, atau telepon..."
@@ -243,7 +243,7 @@ export default function ClientsPage() {
                   <h3 className="mt-4 font-medium text-primary">
                     {search ? "Klien tidak ditemukan" : "Belum ada klien"}
                   </h3>
-                  <p className="mt-1 max-w-sm text-sm leading-relaxed text-text-muted">
+                  <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground">
                     {search
                       ? "Coba gunakan kata kunci lain."
                       : "Tambahkan klien pertama untuk mulai membuat invoice."}
@@ -265,7 +265,7 @@ export default function ClientsPage() {
                         </div>
                         <div className="min-w-0">
                           <h3 className="truncate font-medium text-primary">{client.name}</h3>
-                          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
+                          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                             {client.email && <span className="inline-flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{client.email}</span>}
                             {client.phone && <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{client.phone}</span>}
                             {client.address && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{client.address}</span>}
@@ -326,7 +326,7 @@ export default function ClientsPage() {
                 maxLength={5000}
                 value={form.address}
                 onChange={(event) => setForm({ ...form, address: event.target.value })}
-                className="min-h-24 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:ring-2 focus:ring-primary/20"
+                className="min-h-24 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <DialogFooter>

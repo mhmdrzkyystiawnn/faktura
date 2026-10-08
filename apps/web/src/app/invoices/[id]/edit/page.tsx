@@ -159,21 +159,21 @@ export default function EditInvoicePage() {
 
   return (
     <WorkspaceShell activePath="/invoices">
-      <main className="mx-auto max-w-7xl px-4 py-8 text-text-primary sm:px-8 lg:py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 text-foreground sm:px-8 lg:py-10">
         <div className="mx-auto max-w-6xl">
           {loading ? (
             <div className="space-y-6" aria-busy="true" aria-label="Memuat invoice"><div className="h-28 animate-pulse border-b border-border bg-muted/40" /><div className="h-96 animate-pulse border border-border bg-muted/40" /></div>
           ) : error || !invoice ? (
             <div className="border border-danger/30 bg-danger/5 px-5 py-4 text-sm text-danger" role="alert">{error || "Invoice tidak ditemukan."}</div>
           ) : invoice.status !== "draft" ? (
-            <div className="space-y-5"><div className="border border-border bg-surface px-5 py-4 text-sm text-text-muted">Invoice berstatus {invoice.status} dan tidak dapat diedit.</div><Button variant="outline" asChild><Link href={`/invoices/${invoice.id}`}><ArrowLeft className="h-4 w-4" />Kembali ke detail</Link></Button></div>
+            <div className="space-y-5"><div className="border border-border bg-surface px-5 py-4 text-sm text-muted-foreground">Invoice berstatus {invoice.status} dan tidak dapat diedit.</div><Button variant="outline" asChild><Link href={`/invoices/${invoice.id}`}><ArrowLeft className="h-4 w-4" />Kembali ke detail</Link></Button></div>
           ) : (
             <>
               <header className="border-b border-border pb-7">
-                <Link href={`/invoices/${invoice.id}`} className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary"><ArrowLeft className="h-4 w-4" />Kembali ke detail invoice</Link>
-                <p className="mt-5 font-mono text-xs uppercase tracking-[0.14em] text-text-muted">Workspace / Edit invoice</p>
+                <Link href={`/invoices/${invoice.id}`} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />Kembali ke detail invoice</Link>
+                <p className="mt-5 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">Workspace / Edit invoice</p>
                 <h1 className="mt-2 font-mono text-3xl font-medium text-primary">{invoice.invoiceNumber}</h1>
-                <p className="mt-2 text-sm text-text-muted">Perubahan hanya dapat disimpan selama invoice masih draft.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Perubahan hanya dapat disimpan selama invoice masih draft.</p>
               </header>
 
               {error && <div className="mt-6 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger" role="alert">{error}</div>}
@@ -189,7 +189,7 @@ export default function EditInvoicePage() {
                   </Card>
 
                   <Card>
-                    <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4"><div><CardTitle className="font-serif text-xl font-medium text-primary">Item tagihan</CardTitle><p className="mt-1 text-sm text-text-muted">Perbarui layanan atau produk pada invoice.</p></div><Button type="button" variant="outline" size="sm" onClick={addItem}><Plus className="h-3.5 w-3.5" />Tambah item</Button></CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4"><div><CardTitle className="font-serif text-xl font-medium text-primary">Item tagihan</CardTitle><p className="mt-1 text-sm text-muted-foreground">Perbarui layanan atau produk pada invoice.</p></div><Button type="button" variant="outline" size="sm" onClick={addItem}><Plus className="h-3.5 w-3.5" />Tambah item</Button></CardHeader>
                     <CardContent className="space-y-4 p-5">
                       {items.map((item, index) => <div key={item.id} className="grid gap-3 border-b border-border pb-4 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_6rem_9rem_2.25rem] sm:items-end"><div className="space-y-2"><Label htmlFor={`description-${item.id}`}>Deskripsi {index + 1}</Label><Input id={`description-${item.id}`} value={item.description} onChange={(event) => updateItem(item.id, "description", event.target.value)} maxLength={500} required /></div><div className="space-y-2"><Label htmlFor={`quantity-${item.id}`}>Qty</Label><Input id={`quantity-${item.id}`} type="number" min="0.01" step="0.01" value={item.quantity} onChange={(event) => updateItem(item.id, "quantity", event.target.value)} required /></div><div className="space-y-2"><Label htmlFor={`price-${item.id}`}>Harga satuan</Label><Input id={`price-${item.id}`} type="number" min="0" step="1" value={item.unitPrice} onChange={(event) => updateItem(item.id, "unitPrice", event.target.value)} required /></div><Button type="button" variant="ghost" size="icon" aria-label={`Hapus item ${index + 1}`} title="Hapus item" onClick={() => removeItem(item.id)} disabled={items.length === 1}><Trash2 className="h-4 w-4" /></Button></div>)}
                     </CardContent>
@@ -201,7 +201,7 @@ export default function EditInvoicePage() {
                   </Card>
                 </div>
 
-                <aside className="lg:sticky lg:top-28 lg:self-start"><Card><CardHeader className="border-b border-border px-5 py-4"><CardTitle className="font-serif text-xl font-medium text-primary">Ringkasan</CardTitle></CardHeader><CardContent className="space-y-4 p-5"><AmountLine label="Subtotal" value={totals.subtotal} /><AmountLine label="Diskon" value={-totals.discount} negative /><AmountLine label={`Pajak ${taxPercent || 0}%`} value={totals.tax} /><div className="flex items-end justify-between gap-4 border-t border-primary pt-4"><span className="text-sm font-medium text-text-muted">Total</span><span className="font-serif text-2xl font-medium tabular-nums text-primary">{formatCurrency(totals.total)}</span></div><Button type="submit" className="w-full" disabled={saving}><Save className="h-4 w-4" />{saving ? "Menyimpan..." : "Simpan perubahan"}</Button></CardContent></Card></aside>
+                <aside className="lg:sticky lg:top-28 lg:self-start"><Card><CardHeader className="border-b border-border px-5 py-4"><CardTitle className="font-serif text-xl font-medium text-primary">Ringkasan</CardTitle></CardHeader><CardContent className="space-y-4 p-5"><AmountLine label="Subtotal" value={totals.subtotal} /><AmountLine label="Diskon" value={-totals.discount} negative /><AmountLine label={`Pajak ${taxPercent || 0}%`} value={totals.tax} /><div className="flex items-end justify-between gap-4 border-t border-primary pt-4"><span className="text-sm font-medium text-muted-foreground">Total</span><span className="font-serif text-2xl font-medium tabular-nums text-primary">{formatCurrency(totals.total)}</span></div><Button type="submit" className="w-full" disabled={saving}><Save className="h-4 w-4" />{saving ? "Menyimpan..." : "Simpan perubahan"}</Button></CardContent></Card></aside>
               </form>
             </>
           )}
@@ -212,7 +212,7 @@ export default function EditInvoicePage() {
 }
 
 function AmountLine({ label, value, negative = false }: { label: string; value: number; negative?: boolean }) {
-  return <div className="flex items-center justify-between gap-4 text-sm"><span className="text-text-muted">{label}</span><span className={`tabular-nums ${negative ? "text-danger" : "text-text-primary"}`}>{formatCurrency(value)}</span></div>;
+  return <div className="flex items-center justify-between gap-4 text-sm"><span className="text-muted-foreground">{label}</span><span className={`tabular-nums ${negative ? "text-danger" : "text-foreground"}`}>{formatCurrency(value)}</span></div>;
 }
 
 function formatCurrency(value: number) {

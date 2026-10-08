@@ -127,17 +127,17 @@ export default function InvoicesPage() {
 
   return (
     <WorkspaceShell activePath="/invoices">
-      <main className="mx-auto max-w-7xl px-4 py-8 text-text-primary sm:px-8 lg:py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 text-foreground sm:px-8 lg:py-10">
         <div className="mx-auto max-w-6xl">
           <header className="flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.14em] text-text-muted">
+              <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
                 Workspace / Invoice
               </p>
               <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-primary">
                 Daftar invoice
               </h1>
-              <p className="mt-2 max-w-xl text-sm text-text-muted">
+              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
                 Pantau tagihan, status pembayaran, dan jatuh tempo klien.
               </p>
             </div>
@@ -162,13 +162,13 @@ export default function InvoicesPage() {
                   <h2 id="invoice-list-heading" className="font-serif text-xl font-medium text-primary">
                     Semua invoice
                   </h2>
-                  <p className="mt-1 text-sm text-text-muted">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {filteredInvoices.length} invoice ditampilkan
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <div className="relative w-full sm:w-64">
-                    <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-text-muted" />
+                    <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       aria-label="Cari nomor invoice atau klien"
                       placeholder="Cari invoice atau klien..."
@@ -226,12 +226,12 @@ export default function InvoicesPage() {
                               <Link href={`/invoices/${invoice.id}`} className="font-mono text-sm text-primary hover:text-accent hover:underline">
                                 {invoice.invoiceNumber}
                               </Link>
-                              <p className="mt-1 text-xs text-text-muted">
+                              <p className="mt-1 text-xs text-muted-foreground">
                                 Dibuat {formatDate(invoice.issueDate)}
                               </p>
                             </TableCell>
-                            <TableCell className="font-medium text-text-primary">{invoice.client.name}</TableCell>
-                            <TableCell className="font-mono text-xs text-text-muted">
+                            <TableCell className="font-medium text-foreground">{invoice.client.name}</TableCell>
+                            <TableCell className="font-mono text-xs text-muted-foreground">
                               {formatDate(invoice.dueDate)}
                             </TableCell>
                             <TableCell><StatusBadge status={invoice.status} /></TableCell>
@@ -248,7 +248,7 @@ export default function InvoicesPage() {
             </Card>
           </section>
 
-          <div className="mt-6 flex items-center justify-between border-t border-border pt-5 text-xs text-text-muted">
+          <div className="mt-6 flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
             <span>Plan Free · {invoices.length} invoice ditampilkan</span>
             <Link href="/dashboard" className="inline-flex items-center gap-1 text-accent hover:underline">
               Kembali ke dashboard <ArrowUpRight className="h-3.5 w-3.5" />
@@ -265,9 +265,9 @@ function Summary({ label, value, detail, tone = "default" }: { label: string; va
   return (
     <Card>
       <CardContent className="p-5">
-        <p className="text-sm text-text-muted">{label}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
         <p className={`mt-4 font-serif text-3xl font-medium tabular-nums ${valueClass}`}>{value}</p>
-        <p className="mt-2 text-xs text-text-muted">{detail}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{detail}</p>
       </CardContent>
     </Card>
   );
@@ -282,7 +282,7 @@ function EmptyState({ hasSearch }: { hasSearch: boolean }) {
       <h3 className="mt-4 font-medium text-primary">
         {hasSearch ? "Invoice tidak ditemukan" : "Belum ada invoice"}
       </h3>
-      <p className="mt-1 max-w-sm text-sm leading-relaxed text-text-muted">
+      <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground">
         {hasSearch ? "Coba ubah kata kunci atau filter status." : "Buat invoice pertama untuk mulai mencatat piutang."}
       </p>
       {!hasSearch && (
@@ -304,7 +304,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
     cancelled: "Dibatalkan",
   };
   const variants: Record<InvoiceStatus, string> = {
-    draft: "border-border bg-muted/40 text-text-muted",
+    draft: "border-border bg-muted/40 text-muted-foreground",
     sent: "border-accent/30 bg-accent/10 text-accent",
     viewed: "border-primary/20 bg-primary/5 text-primary",
     paid: "border-success/30 bg-success/10 text-success",

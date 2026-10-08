@@ -56,7 +56,7 @@ export function WorkspaceShell({
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-primary">
+    <div className="min-h-screen bg-background text-foreground">
       {sidebarOpen && (
         <button
           type="button"
@@ -145,26 +145,26 @@ export function WorkspaceShell({
           <button
             type="button"
             aria-label="Buka navigasi"
-            className="rounded-md p-2 text-text-muted hover:bg-accent/10 lg:hidden"
+            className="rounded-md p-2 text-muted-foreground hover:bg-accent/10 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
           </button>
-          <p className="hidden font-mono text-xs uppercase tracking-[0.14em] text-text-muted lg:block">
+          <p className="hidden font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground lg:block">
             Workspace / {activePath === "/clients" ? "Klien" : activePath === "/invoices" ? "Invoice" : "Dashboard"}
           </p>
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"
               aria-label="Notifikasi"
-              className="relative rounded-md p-2 text-text-muted hover:bg-accent/10 hover:text-primary"
+              className="relative rounded-md p-2 text-muted-foreground hover:bg-accent/10 hover:text-primary"
             >
               <Bell className="h-5 w-5" />
               <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-accent" />
             </button>
             <div className="ml-1 hidden h-6 w-px bg-border sm:block" />
-            <span className="hidden text-sm text-text-muted sm:block">{userName}</span>
-            <ChevronDown className="hidden h-4 w-4 text-text-muted sm:block" />
+            <span className="hidden text-sm text-muted-foreground sm:block">{userName}</span>
+            <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
           </div>
         </header>
         {children}

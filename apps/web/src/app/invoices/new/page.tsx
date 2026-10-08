@@ -142,20 +142,20 @@ export default function NewInvoicePage() {
 
   return (
     <WorkspaceShell activePath="/invoices">
-      <main className="mx-auto max-w-7xl px-4 py-8 text-text-primary sm:px-8 lg:py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 text-foreground sm:px-8 lg:py-10">
         <div className="mx-auto max-w-6xl">
           <header className="border-b border-border pb-7">
-            <Link href="/invoices" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary">
+            <Link href="/invoices" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
               <ArrowLeft className="h-4 w-4" />
               Kembali ke invoice
             </Link>
-            <p className="mt-5 font-mono text-xs uppercase tracking-[0.14em] text-text-muted">
+            <p className="mt-5 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
               Workspace / Invoice baru
             </p>
             <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-primary">
               Buat invoice
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-text-muted">
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Masukkan detail tagihan. Total invoice dihitung ulang dan divalidasi oleh server.
             </p>
           </header>
@@ -178,7 +178,7 @@ export default function NewInvoicePage() {
                     {loadingClients ? (
                       <div className="h-9 animate-pulse rounded-md border border-border bg-muted/40" />
                     ) : clients.length === 0 ? (
-                      <p className="border border-border bg-background px-3 py-2 text-sm text-text-muted">
+                      <p className="border border-border bg-background px-3 py-2 text-sm text-muted-foreground">
                         Belum ada klien. <Link href="/clients" className="text-accent hover:underline">Tambah klien</Link>
                       </p>
                     ) : (
@@ -209,7 +209,7 @@ export default function NewInvoicePage() {
                 <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 py-4">
                   <div>
                     <CardTitle className="font-serif text-xl font-medium text-primary">Item tagihan</CardTitle>
-                    <p className="mt-1 text-sm text-text-muted">Tambahkan layanan atau produk yang ditagihkan.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Tambahkan layanan atau produk yang ditagihkan.</p>
                   </div>
                   <Button type="button" variant="outline" size="sm" onClick={addItem}>
                     <Plus className="h-3.5 w-3.5" />
@@ -270,14 +270,14 @@ export default function NewInvoicePage() {
                   <SummaryLine label={`Pajak ${taxPercent || 0}%`} value={totals.tax} />
                   <div className="border-t border-primary pt-4">
                     <div className="flex items-end justify-between gap-4">
-                      <span className="text-sm font-medium text-text-muted">Total</span>
+                      <span className="text-sm font-medium text-muted-foreground">Total</span>
                       <span className="font-serif text-2xl font-medium tabular-nums text-primary">{formatCurrency(totals.total)}</span>
                     </div>
                   </div>
                   <Button type="submit" className="mt-2 w-full" disabled={saving || loadingClients || clients.length === 0}>
                     {saving ? "Menyimpan..." : "Simpan sebagai draft"}
                   </Button>
-                  <p className="text-center text-xs leading-relaxed text-text-muted">
+                  <p className="text-center text-xs leading-relaxed text-muted-foreground">
                     Invoice akan disimpan sebagai draft dan dapat diperbarui sebelum dikirim.
                   </p>
                 </CardContent>
@@ -297,8 +297,8 @@ function createItem(id: number): InvoiceItemForm {
 function SummaryLine({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-text-muted">{label}</span>
-      <span className={`tabular-nums ${value < 0 ? "text-danger" : "text-text-primary"}`}>{formatCurrency(value)}</span>
+      <span className="text-muted-foreground">{label}</span>
+      <span className={`tabular-nums ${value < 0 ? "text-danger" : "text-foreground"}`}>{formatCurrency(value)}</span>
     </div>
   );
 }

@@ -67,14 +67,14 @@ export default function DashboardPage() {
 
   return (
     <WorkspaceShell activePath="/dashboard">
-      <main className="mx-auto max-w-7xl px-4 py-8 text-text-primary sm:px-8 lg:py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 text-foreground sm:px-8 lg:py-10">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <p className="mb-2 text-sm text-text-muted">Selamat datang kembali,</p>
+            <p className="mb-2 text-sm text-muted-foreground">Selamat datang kembali,</p>
             <h1 className="font-serif text-3xl font-medium tracking-tight text-primary sm:text-4xl">
               Dashboard
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-text-muted">
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Pantau invoice dan arus kas bisnis Anda dari satu tempat.
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 id="invoice-heading" className="font-serif text-xl font-medium text-primary">Invoice terbaru</h2>
-                <p className="mt-1 text-sm text-text-muted">Lima invoice terakhir dari workspace Anda.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Lima invoice terakhir dari workspace Anda.</p>
               </div>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/invoices">Lihat semua</Link>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                     <FileText className="h-5 w-5" />
                   </div>
                   <h3 className="mt-4 font-medium text-primary">Belum ada invoice</h3>
-                  <p className="mt-1 max-w-sm text-sm leading-relaxed text-text-muted">
+                  <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground">
                     Buat invoice pertama Anda untuk mulai mencatat piutang dan mengelola pembayaran klien.
                   </p>
                   <Button variant="outline" className="mt-5" asChild>
@@ -162,11 +162,11 @@ export default function DashboardPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-text-muted">Invoice</th>
-                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-text-muted">Klien</th>
-                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-text-muted">Jatuh tempo</th>
-                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-text-muted">Status</th>
-                        <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-[0.12em] text-text-muted">Total</th>
+                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Invoice</th>
+                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Klien</th>
+                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Jatuh tempo</th>
+                        <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Status</th>
+                        <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -177,8 +177,8 @@ export default function DashboardPage() {
                               {inv.invoiceNumber}
                             </Link>
                           </td>
-                          <td className="px-5 py-3 text-sm text-text-primary">{inv.client.name}</td>
-                          <td className="px-5 py-3 font-mono text-xs text-text-muted">{formatDate(inv.dueDate)}</td>
+                          <td className="px-5 py-3 text-sm text-foreground">{inv.client.name}</td>
+                          <td className="px-5 py-3 font-mono text-xs text-muted-foreground">{formatDate(inv.dueDate)}</td>
                           <td className="px-5 py-3"><StatusBadge status={inv.status} /></td>
                           <td className="px-5 py-3 text-right font-serif text-base font-medium text-primary">
                             {formatCurrency(inv.total, inv.currency)}
@@ -193,7 +193,7 @@ export default function DashboardPage() {
           </Card>
         </section>
 
-        <div className="mt-6 flex items-center justify-between border-t border-border pt-5 text-xs text-text-muted">
+        <div className="mt-6 flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
           <span>Plan Free &middot; {planUsed} dari {planLimit} invoice bulan ini</span>
           <Link href="/invoices" className="text-accent hover:underline">Lihat semua invoice</Link>
         </div>
@@ -218,11 +218,11 @@ function SummaryCard({
     <Card>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
-          <p className="text-sm text-text-muted">{label}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
           <Badge variant="outline">Bulan ini</Badge>
         </div>
         <p className={`mt-5 font-serif text-3xl font-medium tabular-nums ${valueClass}`}>{value}</p>
-        <p className="mt-2 text-xs text-text-muted">{detail}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{detail}</p>
       </CardContent>
     </Card>
   );
@@ -230,7 +230,7 @@ function SummaryCard({
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   const labels: Record<InvoiceStatus, string> = { draft: "Draft", sent: "Terkirim", viewed: "Dilihat", paid: "Lunas", overdue: "Terlambat", cancelled: "Dibatalkan" };
-  const variants: Record<InvoiceStatus, string> = { draft: "border-border bg-muted/40 text-text-muted", sent: "border-accent/30 bg-accent/10 text-accent", viewed: "border-primary/20 bg-primary/5 text-primary", paid: "border-success/30 bg-success/10 text-success", overdue: "border-danger/30 bg-danger/10 text-danger", cancelled: "border-danger/20 bg-danger/5 text-danger" };
+  const variants: Record<InvoiceStatus, string> = { draft: "border-border bg-muted/40 text-muted-foreground", sent: "border-accent/30 bg-accent/10 text-accent", viewed: "border-primary/20 bg-primary/5 text-primary", paid: "border-success/30 bg-success/10 text-success", overdue: "border-danger/30 bg-danger/10 text-danger", cancelled: "border-danger/20 bg-danger/5 text-danger" };
   return <Badge className={`rounded-full border ${variants[status]}`}>{labels[status]}</Badge>;
 }
 

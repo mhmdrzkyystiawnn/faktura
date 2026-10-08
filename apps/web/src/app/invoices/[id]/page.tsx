@@ -148,7 +148,7 @@ export default function InvoiceDetailPage() {
 
   return (
     <WorkspaceShell activePath="/invoices">
-      <main className="mx-auto max-w-7xl px-4 py-8 text-text-primary sm:px-8 lg:py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 text-foreground sm:px-8 lg:py-10">
         <div className="mx-auto max-w-5xl">
           {loading ? (
             <DetailSkeleton />
@@ -160,18 +160,18 @@ export default function InvoiceDetailPage() {
             <>
               <header className="flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <Link href="/invoices" className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-primary">
+                  <Link href="/invoices" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
                     <ArrowLeft className="h-4 w-4" />
                     Kembali ke invoice
                   </Link>
-                  <p className="mt-5 font-mono text-xs uppercase tracking-[0.14em] text-text-muted">
+                  <p className="mt-5 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
                     Workspace / Detail invoice
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-3">
                     <h1 className="font-mono text-2xl font-medium text-primary sm:text-3xl">{invoice.invoiceNumber}</h1>
                     <StatusBadge status={invoice.status} />
                   </div>
-                  <p className="mt-2 text-sm text-text-muted">Untuk {invoice.client.name}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Untuk {invoice.client.name}</p>
                 </div>
                 {invoice.status === "draft" ? (
                   <div className="flex flex-wrap gap-2">
@@ -232,7 +232,7 @@ export default function InvoiceDetailPage() {
                     <AmountLine label={`Pajak (${invoice.taxPercent}%)`} value={invoice.total - invoice.subtotal + invoice.discountAmount} currency={invoice.currency} />
                     <AmountLine label="Diskon" value={-invoice.discountAmount} currency={invoice.currency} negative />
                     <div className="flex items-end justify-between gap-4 border-t border-border pt-3">
-                      <span className="text-sm font-medium text-text-muted">Total</span>
+                      <span className="text-sm font-medium text-muted-foreground">Total</span>
                       <span className="font-serif text-2xl font-medium tabular-nums text-primary">{formatCurrency(invoice.total, invoice.currency)}</span>
                     </div>
                   </div>
@@ -283,16 +283,16 @@ function DetailSkeleton() {
 }
 
 function InfoCard({ label, value, detail, icon }: { label: string; value: string; detail: string; icon?: React.ReactNode }) {
-  return <Card><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.12em] text-text-muted">{label}</p><p className="mt-3 flex items-center gap-2 font-medium text-primary">{icon}{value}</p><p className="mt-1 text-xs text-text-muted">{detail}</p></CardContent></Card>;
+  return <Card><CardContent className="p-5"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{label}</p><p className="mt-3 flex items-center gap-2 font-medium text-primary">{icon}{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></CardContent></Card>;
 }
 
 function AmountLine({ label, value, currency, negative = false }: { label: string; value: number; currency: string; negative?: boolean }) {
-  return <div className="flex items-center justify-between gap-4 text-sm"><span className="text-text-muted">{label}</span><span className={`tabular-nums ${negative ? "text-danger" : "text-text-primary"}`}>{formatCurrency(value, currency)}</span></div>;
+  return <div className="flex items-center justify-between gap-4 text-sm"><span className="text-muted-foreground">{label}</span><span className={`tabular-nums ${negative ? "text-danger" : "text-foreground"}`}>{formatCurrency(value, currency)}</span></div>;
 }
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   const labels: Record<InvoiceStatus, string> = { draft: "Draft", sent: "Terkirim", viewed: "Dilihat", paid: "Lunas", overdue: "Terlambat", cancelled: "Dibatalkan" };
-  const styles: Record<InvoiceStatus, string> = { draft: "border-border bg-muted/40 text-text-muted", sent: "border-accent/30 bg-accent/10 text-accent", viewed: "border-primary/20 bg-primary/5 text-primary", paid: "border-success/30 bg-success/10 text-success", overdue: "border-danger/30 bg-danger/10 text-danger", cancelled: "border-danger/20 bg-danger/5 text-danger" };
+  const styles: Record<InvoiceStatus, string> = { draft: "border-border bg-muted/40 text-muted-foreground", sent: "border-accent/30 bg-accent/10 text-accent", viewed: "border-primary/20 bg-primary/5 text-primary", paid: "border-success/30 bg-success/10 text-success", overdue: "border-danger/30 bg-danger/10 text-danger", cancelled: "border-danger/20 bg-danger/5 text-danger" };
   return <Badge className={`rounded-full border ${styles[status]}`}>{labels[status]}</Badge>;
 }
 
