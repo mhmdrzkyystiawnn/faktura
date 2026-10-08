@@ -6,7 +6,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { ClientsModule } from './modules/clients/clients.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { RemindersModule } from './modules/reminders/reminders.module';
 import { UsersModule } from './modules/users/users.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -14,7 +17,10 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     ClientsModule,
     InvoicesModule,
+    PaymentsModule,
+    RemindersModule,
     UsersModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
   providers: [

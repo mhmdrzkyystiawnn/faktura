@@ -7,8 +7,10 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
+import { Resend } from 'resend';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { ClientsService } from '../clients/clients.service';
+import { RemindersService } from '../reminders/reminders.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoiceQueryDto } from './dto/invoice-query.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
@@ -18,10 +20,15 @@ const MAX_NUMBER_RETRIES = 3;
 
 @Injectable()
 export class InvoicesService {
+  private readonly resend: Resend;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly clients: ClientsService,
-  ) {}
+    private readonly reminders: RemindersService,
+  ) {
+    this.resend = new Resend(process.env.RESEND_API_KEY);
+  }
 
   async findAll(userId: string, query: InvoiceQueryDto) {
     const where: Prisma.InvoiceWhereInput = {
@@ -254,11 +261,24 @@ export class InvoicesService {
       );
     }
 
+    // Kirim email ke client dulu supaya kalau gagal, status tetap draft
+    // dan user bisa coba lagi. Kalau client tidak punya email, lewati
+    // (invoice tetap bisa ditandai terkirim secara manual).
+    if (invoice.client.email) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true },
+      });
+      await this.sendInvoiceEmail(invoice, user?.name ?? 'Faktura');
+    }
+
     const updated = await this.prisma.invoice.update({
       where: { id },
       data: { status: 'sent' },
       include: { client: true, items: true },
     });
+
+    await this.reminders.generateReminders(id, updated.dueDate);
 
     return { data: this.serializeInvoice(updated) };
   }
@@ -280,6 +300,8 @@ export class InvoicesService {
       data: { status: 'cancelled' },
       include: { client: true, items: true },
     });
+
+    await this.reminders.cancelPendingReminders(id);
 
     return { data: this.serializeInvoice(updated) };
   }
@@ -375,6 +397,154 @@ export class InvoicesService {
 
   private createPublicToken() {
     return randomBytes(32).toString('hex');
+  }
+
+  private async sendInvoiceEmail(invoice: any, senderName: string) {
+    const clientEmail = invoice.client.email;
+    if (!clientEmail) return;
+
+    const formatted = this.formatInvoiceForEmail(invoice);
+
+    await this.resend.emails.send({
+      from:
+        process.env.EMAIL_FROM ??
+        'Faktura <noreply@faktura.muhamadrizky.my.id>',
+      to: clientEmail,
+      subject: `Invoice ${formatted.invoiceNumber} dari ${senderName}`,
+      html: this.buildInvoiceHtml(formatted, senderName),
+    });
+  }
+
+  private formatInvoiceForEmail(invoice: any) {
+    const currency = invoice.currency ?? 'IDR';
+    const fmt = (value: unknown) =>
+      new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0,
+      }).format(Number(value));
+
+    return {
+      invoiceNumber: invoice.invoiceNumber as string,
+      issueDate: invoice.issueDate.toISOString().slice(0, 10),
+      dueDate: invoice.dueDate.toISOString().slice(0, 10),
+      currency,
+      clientName: invoice.client.name as string,
+      subtotal: fmt(invoice.subtotal),
+      taxPercent: invoice.taxPercent.toNumber(),
+      taxAmount: fmt(
+        invoice.total.toNumber() -
+          invoice.subtotal.toNumber() +
+          invoice.discountAmount.toNumber(),
+      ),
+      discountAmount: fmt(invoice.discountAmount),
+      total: fmt(invoice.total),
+      items: invoice.items.map((item: any) => ({
+        description: item.description as string,
+        quantity: item.quantity.toNumber(),
+        unitPrice: fmt(item.unitPrice),
+        subtotal: fmt(item.subtotal),
+      })),
+    };
+  }
+
+  private buildInvoiceHtml(
+    data: ReturnType<InvoicesService['formatInvoiceForEmail']>,
+    senderName: string,
+  ): string {
+    const rows = data.items
+      .map(
+        (item) => `
+                <tr>
+                  <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#2d3748;font-size:14px;">${item.description}</td>
+                  <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#4a5568;font-size:14px;text-align:right;">${item.quantity}</td>
+                  <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#4a5568;font-size:14px;text-align:right;">${item.unitPrice}</td>
+                  <td style="padding:12px 16px;border-bottom:1px solid #e2e8f0;color:#1a365d;font-size:14px;font-weight:600;text-align:right;">${item.subtotal}</td>
+                </tr>`,
+      )
+      .join('');
+
+    return `
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice ${data.invoiceNumber}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background-color:#1a365d;padding:24px 32px;">
+              <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">Faktura</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h2 style="margin:0 0 8px;color:#1a365d;font-size:18px;font-weight:600;">Invoice ${data.invoiceNumber}</h2>
+              <p style="margin:0 0 24px;color:#718096;font-size:13px;">
+                Dari <strong>${senderName}</strong> untuk <strong>${data.clientName}</strong>
+              </p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="color:#718096;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;padding-right:16px;">Tanggal</td>
+                  <td style="color:#2d3748;font-size:14px;font-weight:600;">${data.issueDate}</td>
+                  <td style="color:#718096;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;padding-right:16px;">Jatuh Tempo</td>
+                  <td style="color:#2d3748;font-size:14px;font-weight:600;">${data.dueDate}</td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;margin-bottom:24px;">
+                <thead>
+                  <tr style="background-color:#f7fafc;">
+                    <th style="padding:12px 16px;text-align:left;color:#718096;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Deskripsi</th>
+                    <th style="padding:12px 16px;text-align:right;color:#718096;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Qty</th>
+                    <th style="padding:12px 16px;text-align:right;color:#718096;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Harga</th>
+                    <th style="padding:12px 16px;text-align:right;color:#718096;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}
+                </tbody>
+              </table>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-left:auto;max-width:280px;">
+                <tr>
+                  <td style="padding:4px 0;color:#718096;font-size:14px;">Subtotal</td>
+                  <td style="padding:4px 0;color:#2d3748;font-size:14px;text-align:right;">${data.subtotal}</td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 0;color:#718096;font-size:14px;">Diskon</td>
+                  <td style="padding:4px 0;color:#2d3748;font-size:14px;text-align:right;">-${data.discountAmount}</td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 0;color:#718096;font-size:14px;">Pajak (${data.taxPercent}%)</td>
+                  <td style="padding:4px 0;color:#2d3748;font-size:14px;text-align:right;">${data.taxAmount}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 0 0;border-top:2px solid #1a365d;color:#1a365d;font-size:15px;font-weight:600;">Total</td>
+                  <td style="padding:12px 0 0;border-top:2px solid #1a365d;color:#1a365d;font-size:16px;font-weight:700;text-align:right;">${data.total}</td>
+                </tr>
+              </table>
+              <p style="margin:24px 0 0;color:#4a5568;font-size:14px;line-height:1.6;">
+                Mohon melakukan pembayaran sebelum tanggal jatuh tempo. Jika ada pertanyaan, silakan balas email ini.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#f7fafc;padding:16px 32px;border-top:1px solid #e2e8f0;">
+              <p style="margin:0;color:#a0aec0;font-size:11px;text-align:center;">
+                Email ini dikirim otomatis oleh sistem Faktura.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `.trim();
   }
 
   private isUniqueConstraintError(

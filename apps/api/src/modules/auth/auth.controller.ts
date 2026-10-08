@@ -92,6 +92,15 @@ export class AuthController {
     res.clearCookie('refreshToken');
   }
 
+  @Post('logout-all')
+  @UseGuards(JwtAuthGuard)
+  async logoutAll(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const userId = (req as any).user.id as string;
+    await this.auth.logoutAll(userId);
+    res.clearCookie('refreshToken');
+    return { message: 'Semua sesi telah dicabut' };
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@Req() req: Request) {
