@@ -2,10 +2,24 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MarketingShell } from "@/components/marketing-shell";
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Faktura",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://faktura.muhamadrizky.my.id",
+  description:
+    "Aplikasi invoice dan reminder pembayaran untuk freelancer dan UMKM Indonesia.",
+};
 
 export default function HomePage() {
   return (
-    <main className="flex flex-col min-h-screen">
+    <MarketingShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <section className="flex-1 flex flex-col items-center justify-center px-4 py-20 text-center">
         <Badge variant="secondary" className="mb-4">
           Untuk Freelancer & UMKM
@@ -22,7 +36,7 @@ export default function HomePage() {
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Button size="lg" asChild>
-            <Link href="/pricing">Mulai Gratis</Link>
+            <Link href="/auth/register">Mulai Gratis</Link>
           </Button>
           <Button variant="outline" size="lg" asChild>
             <Link href="/features">Lihat Fitur</Link>
@@ -65,14 +79,7 @@ export default function HomePage() {
           </CardContent>
         </Card>
       </section>
-
-      <footer className="py-8 px-4 border-t border-border text-sm text-muted-foreground text-center">
-        <p>
-          &copy; {new Date().getFullYear()} Faktura. Dibuat untuk freelancer
-          Indonesia.
-        </p>
-      </footer>
-    </main>
+    </MarketingShell>
   );
 }
 

@@ -22,6 +22,13 @@ const navigation = [
   { label: "Klien", href: "/clients", icon: Users },
 ];
 
+const sectionLabels: Record<string, string> = {
+  "/clients": "Klien",
+  "/invoices": "Invoice",
+  "/settings": "Pengaturan",
+  "/dashboard": "Dashboard",
+};
+
 export function WorkspaceShell({
   activePath,
   children,
@@ -114,7 +121,11 @@ export function WorkspaceShell({
           </p>
           <Link
             href="/settings"
-            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-primary-foreground/70 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${
+              activePath === "/settings"
+                ? "bg-accent text-primary"
+                : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            }`}
           >
             <Settings className="h-4 w-4" />
             Pengaturan
@@ -151,7 +162,7 @@ export function WorkspaceShell({
             <Menu className="h-5 w-5" />
           </button>
           <p className="hidden font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground lg:block">
-            Workspace / {activePath === "/clients" ? "Klien" : activePath === "/invoices" ? "Invoice" : "Dashboard"}
+            Workspace / {sectionLabels[activePath] ?? "Dashboard"}
           </p>
           <div className="ml-auto flex items-center gap-2">
             <button
