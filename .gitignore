@@ -3,6 +3,6 @@ node_modules/
 .env.*
 !.env.example
 dist/
-.github/
+.github/copilot-instructions.md
 temp/
 .next/
